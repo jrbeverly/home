@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DIR_ROOT="$( dirname "$( dirname "${DIR}")")"
+
+docker run -it --rm \
+    -e ANSIBLE_HOST_KEY_CHECKING=False \
+    -v "/${DIR_ROOT}/codelab":/workspace:ro \
+    -e NAMECHEAP_TOKEN \
+    -e OPENVPN_USERNAME \
+    -e OPENVPN_PASSWORD \
+    --workdir //workspace \
+    ansible/ansible-runner ansible-playbook -kK -i hosts playbook.yml -e "namecheap_token='${NAMECHEAP_TOKEN}' openvpn_username='${OPENVPN_USERNAME}' openvpn_password='${OPENVPN_PASSWORD}'"
