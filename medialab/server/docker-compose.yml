@@ -1,0 +1,89 @@
+version: "2.1"
+
+services:
+  emby:
+    image: {{ images.emby }}
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/emby.env
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "./etc/emby:/config"
+      - "./tmp/emby/transcode:/transcode"
+      - "./data/media:/data"
+      - /opt/vc/lib:/opt/vc/lib
+    ports:
+      - 8096:8096
+    environment:
+      - VIRTUAL_HOST=watch.home.jrbeverly.me
+      - VIRTUAL_PORT=8096
+
+  indexer:
+    image: {{ images.indexer }}
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/index.env
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "./etc/index:/config"
+    ports:
+      - "9117:9117"
+    environment:
+      - VIRTUAL_HOST=index.home.jrbeverly.me
+      - VIRTUAL_PORT=9117
+
+  movies:
+    image: {{ images.movie_manager }}
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/movies.env
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "./etc/movies:/config"
+      - "./tmp/transmission:/data/completed"
+      - "./data/media/:/movies"
+    ports:
+      - "7878:7878"
+    environment:
+      - VIRTUAL_HOST=movies.home.jrbeverly.me
+      - VIRTUAL_PORT=7878
+
+  television:
+    image: {{ images.tv_manager }}
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/television.env
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "./etc/television:/config"
+      - "./tmp/transmission:/data/completed"
+      - "./data/media/:/tv"
+    ports:
+      - "8989:8989"
+    environment:
+      - VIRTUAL_HOST=tv.home.jrbeverly.me
+      - VIRTUAL_PORT=8989
+
+  transmission:
+    image: {{ images.downloader }}
+    restart: always
+    privileged: true
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/transmission.env
+      - ./etc/secret/vpn.env
+    volumes:
+      - "./etc/transmission:/data/transmission-home"
+      - "./tmp/transmission:/data/completed"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "9091:9091"
+    environment:
+      - VIRTUAL_HOST=download.home.jrbeverly.me
+      - VIRTUAL_PORT=9091

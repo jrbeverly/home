@@ -1,0 +1,7 @@
+{
+  "emby": "ghcr.io/linuxserver/...",
+  "indexer": "ghcr.io/linuxserver/...",
+  "downloader": "ghcr.io/linuxserver/...",
+  "movie_manager": "ghcr.io/linuxserver/...",
+  "tv_manager": "ghcr.io/linuxserver/..."
+}

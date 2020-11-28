@@ -1,0 +1,43 @@
+version: "2.1"
+
+services:
+  proxy:
+    image: jwilder/nginx-proxy
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/proxy.env
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - "./etc/nginx-proxy/vhost.d:/etc/nginx/vhost.d:ro"
+      - "./etc/certbot/letsencrypt:/etc/letsencrypt"
+    ports:
+      - "80:80"
+      - "443:443"
+
+  dashboard:
+    image: b4bz/homer
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "./etc/dashboard:/www/assets"
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+    ports:
+      - "8080:8080"
+    environment:
+      - VIRTUAL_HOST=dash.home.jrbeverly.me
+      - VIRTUAL_PORT=8080
+
+  certbot:
+    image: adferrand/dnsrobocert
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/certbot.env
+    volumes:
+      - "./etc/certbot/letsencrypt:/etc/letsencrypt"
+      - "./etc/certbot/dnsrobotcert.yml:/etc/dnsrobocert/config.yml"

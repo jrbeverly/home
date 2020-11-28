@@ -1,0 +1,129 @@
+---
+- name: dependencies
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+    - name: Ensure 'python3' is installed
+      apt:
+        name: python3-pip
+        state: present
+        update_cache: yes
+    - name: Ensure 'unattended-upgrades' is installed
+      apt:
+        name: unattended-upgrades
+        state: present
+        update_cache: yes
+    - copy:
+        src: components/apt.conf.d/50unattended-upgrades
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    - name: Ensure 'docker' is installed
+      pip:
+        name:
+          - docker
+          - docker-compose
+        state: present
+    - name: Ensure the server reboots on a weekly frequency
+      cron:
+        name: "reboot"
+        weekday: "2"
+        minute: "30"
+        hour: "2"
+        user: root
+        job: "reboot"
+        cron_file: reboot_cmd
+        state: present
+
+- name: layout
+  hosts: all
+  become: yes
+  become_user: root
+  vars:
+      ip_address: "192.168.1.148"
+  vars_prompt:
+    - name: namecheap_token
+      prompt: Namecheap DNS authorization token?
+    - name: openvpn_username
+      prompt: PrivateInternetAccess username?
+    - name: openvpn_password
+      prompt: PrivateInternetAccess password?
+  tasks:
+    - name: Include IDs for the docker images
+      include_vars:
+        file: images.json
+        name: images
+    - name: Ensure 'homelab' group is present
+      group:
+        name: homelab
+        state: present
+        gid: 7777
+    - name: Ensure 'home' user is present
+      user:
+        name: homelab
+        groups:
+          - homelab
+          - docker
+          - sudo
+        state: present
+        system: yes
+        createhome: no
+        uid: 7777
+    - name: Ensure '/srv' directory is present
+      file:
+        path: /srv/
+        state: directory
+        owner: homelab
+        group: homelab
+        mode: 0775
+    - name: Ensure 'etc' directory is present
+      file:
+        path: /srv/etc
+        state: directory
+        owner: homelab
+        group: homelab
+        mode: 0775
+    - name: Ensure 'secret' directory is present
+      file:
+        path: /srv/etc/secret
+        state: directory
+        owner: homelab
+        group: homelab
+        mode: 0775
+    - name: Ensure temporary directory is present
+      file:
+        path: /srv/tmp
+        state: directory
+        owner: homelab
+        group: homelab
+        mode: 0775
+    - name: Ensure data directory is present
+      file:
+        path: /srv/data
+        state: directory
+        owner: homelab
+        group: homelab
+        mode: 0775
+    - name: Ensure global environment is present 
+      copy:
+        src: config/
+        dest: /srv/etc/env
+    - import_tasks: nginx/playbook.yml
+    - import_tasks: tools/playbook.yml
+    - import_tasks: server/playbook.yml
+
+- name: docker-compose-up
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: tools
+      docker_compose:
+        project_src: /srv/
+        files: [ 'tools.docker-compose.yml' ]
+    - name: nginx
+      docker_compose:
+        project_src: /srv/
+        files: [ 'nginx.docker-compose.yml' ]
+    - name: server
+      docker_compose:
+        project_src: /srv/
+        files: [ 'server.docker-compose.yml' ]

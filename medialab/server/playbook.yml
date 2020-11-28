@@ -1,0 +1,26 @@
+---
+- name: Ensure 'nginx-proxy' directory is present
+  file:
+    path: /srv/etc/secret
+    state: directory
+    owner: homelab
+    group: homelab
+    mode: 0775
+- name: Ensure 'certbot' directory is present
+  file:
+    path: /srv/etc/certbot
+    state: directory
+    owner: homelab
+    group: homelab
+    mode: 0775
+- copy:
+    src: config/
+    dest: /srv/etc/env/
+- name: docker-compose
+  template:
+    src: docker-compose.yml
+    dest: /srv/server.docker-compose.yml
+- name: template-vpn
+  template:
+    src: templates/vpn.env.j2
+    dest: /srv/etc/secret/vpn.env
