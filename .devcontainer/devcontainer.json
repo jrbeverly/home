@@ -1,0 +1,17 @@
+{
+	"name": "Ansible",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": { }
+	},
+	"settings": { 
+		"terminal.integrated.shell.linux": "/bin/bash"
+	},
+	"extensions": [
+		"raynigon.nginx-formatter",
+		"mikestead.dotenv",
+		"vscoss.vscode-ansible"
+	],
+	"forwardPorts": [],
+	"postCreateCommand": "",
+}

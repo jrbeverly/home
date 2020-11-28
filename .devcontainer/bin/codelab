@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+cd /workspaces/home/codelab
+ansible-playbook \
+    -kK \
+    -i hosts \
+    playbook.yml \
+    -e "namecheap_token='${NAMECHEAP_TOKEN}' openvpn_username='${OPENVPN_USERNAME}' openvpn_password='${OPENVPN_PASSWORD}'"
