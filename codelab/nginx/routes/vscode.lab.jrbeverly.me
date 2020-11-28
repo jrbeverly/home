@@ -1,0 +1,5 @@
+listen 443 ssl;
+listen [::]:443 ssl;
+
+ssl_certificate /etc/letsencrypt/live/lab.jrbeverly.me/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/lab.jrbeverly.me/privkey.pem;

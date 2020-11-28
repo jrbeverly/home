@@ -1,0 +1,28 @@
+---
+- name: Ensure 'nginx-proxy' directory is present
+  file:
+    path: /srv/etc/nginx-proxy
+    state: directory
+    owner: coder
+    group: coder
+    mode: 0775
+- name: Ensure 'certbot' directory is present
+  file:
+    path: /srv/etc/certbot
+    state: directory
+    owner: coder
+    group: coder
+    mode: 0775
+- copy:
+    src: routes/
+    dest: /srv/etc/nginx-proxy/vhost.d
+- copy:
+    src: config/
+    dest: /srv/etc/env
+- copy:
+    src: docker-compose.yml
+    dest: /srv/nginx.docker-compose.yml
+- name: template-dnsrobotcert
+  template:
+    src: templates/dnsrobotcert.yml.j2
+    dest: /srv/etc/certbot/dnsrobotcert.yml

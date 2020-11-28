@@ -1,0 +1,14 @@
+---
+- name: Ensure 'watchtower' directory is present
+  file:
+    path: /srv/etc/watchtower
+    state: directory
+    owner: coder
+    group: coder
+    mode: 0775
+- copy:
+    src: config/
+    dest: /srv/etc/env
+- copy:
+    src: docker-compose.yml
+    dest: /srv/tools.docker-compose.yml

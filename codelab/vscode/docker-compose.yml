@@ -1,0 +1,21 @@
+version: "2.1"
+
+services:
+  vscode:
+    image: ghcr.io/linuxserver/code-server
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/vscode.env
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "./etc/vscode:/config"
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+    ports:
+      - "8443:8443"
+    environment:
+      - PROXY_DOMAIN=vscode.lab.jrbeverly.me
+      - VIRTUAL_HOST=vscode.lab.jrbeverly.me
+      - VIRTUAL_PORT=8443

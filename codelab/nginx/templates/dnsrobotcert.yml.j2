@@ -1,0 +1,13 @@
+acme:
+  email_account: mail@jrbeverly.me
+profiles:
+- name: namecheap_profile
+  provider: namecheap
+  provider_options:
+    auth_username: jrbeverly
+    auth_token: {{ namecheap_token }}
+    auth_client_ip: {{ ip_address }}
+certificates:
+- domains:
+  - "*.lab.jrbeverly.me"
+  profile: namecheap_profile

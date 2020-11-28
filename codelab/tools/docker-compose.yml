@@ -1,0 +1,13 @@
+version: "2.1"
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    env_file:
+      - ./etc/env/global.env
+      - ./etc/env/watchtower.env
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/etc/localtime:/etc/localtime:ro"
+    command: '--schedule "0 0 5 * * *" --cleanup'

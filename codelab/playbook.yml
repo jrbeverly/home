@@ -1,0 +1,111 @@
+---
+- name: dependencies
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+    - name: Ensure 'python3' is installed
+      apt:
+        name: python3-pip
+        state: present
+        update_cache: yes
+    - name: Ensure 'unattended-upgrades' is installed
+      apt:
+        name: unattended-upgrades
+        state: present
+        update_cache: yes
+    - copy:
+        src: components/apt.conf.d/50unattended-upgrades
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    - name: Ensure 'docker' is installed
+      pip:
+        name:
+          - docker
+          - docker-compose
+        state: present
+    - name: Ensure the server reboots on a weekly frequency
+      cron:
+        name: "reboot"
+        weekday: "2"
+        minute: "30"
+        hour: "2"
+        user: root
+        job: "reboot"
+        cron_file: reboot_cmd
+        state: present
+
+- name: layout
+  hosts: all
+  become: yes
+  become_user: root
+  vars:
+      ip_address: "192.168.1.160"
+  vars_prompt:
+    - name: namecheap_token
+      prompt: Namecheap DNS authorization token?
+    - name: openvpn_username
+      prompt: PrivateInternetAccess username?
+    - name: openvpn_password
+      prompt: PrivateInternetAccess password?
+  tasks:
+    - name: Ensure 'coder' group is present
+      group:
+        name: coder
+        state: present
+        gid: 7777
+    - name: Ensure 'coder' user is present
+      user:
+        name: coder
+        groups:
+          - coder
+          - docker
+          - sudo
+        state: present
+        system: yes
+        createhome: no
+        uid: 7777
+    - name: Ensure '/srv' directory is present
+      file:
+        path: /srv/
+        state: directory
+        owner: coder
+        group: coder
+        mode: 0775
+    - name: Ensure 'etc' directory is present
+      file:
+        path: /srv/etc
+        state: directory
+        owner: coder
+        group: coder
+        mode: 0775
+    - name: Ensure temporary directory is present
+      file:
+        path: /srv/tmp
+        state: directory
+        owner: coder
+        group: coder
+        mode: 0775
+    - name: Ensure global environment is present 
+      copy:
+        src: config/
+        dest: /srv/etc/env
+    - import_tasks: tools/playbook.yml
+    - import_tasks: nginx/playbook.yml
+    - import_tasks: vscode/playbook.yml
+
+- name: docker-compose-up
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: tools
+      docker_compose:
+        project_src: /srv/
+        files: [ 'tools.docker-compose.yml' ]
+    - name: nginx
+      docker_compose:
+        project_src: /srv/
+        files: [ 'nginx.docker-compose.yml' ]
+    - name: vscode
+      docker_compose:
+        project_src: /srv/
+        files: [ 'vscode.docker-compose.yml' ]

@@ -1,0 +1,14 @@
+---
+- name: Ensure 'secret' directory is present
+  file:
+    path: /srv/etc/secret
+    state: directory
+    owner: coder
+    group: coder
+    mode: 0775
+- copy:
+    src: config/
+    dest: /srv/etc/env/
+- copy:
+    src: docker-compose.yml
+    dest: /srv/vscode.docker-compose.yml
