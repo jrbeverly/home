@@ -6,6 +6,13 @@
     owner: coder
     group: coder
     mode: 0775
+- name: Ensure 'workspace' directory is present
+  file:
+    path: /srv/data/workspace
+    state: directory
+    owner: coder
+    group: coder
+    mode: 0775
 - copy:
     src: config/
     dest: /srv/etc/env/
