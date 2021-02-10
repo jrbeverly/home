@@ -11,10 +11,9 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/etc/localtime:/etc/localtime:ro"
       - "./etc/vscode:/config"
-      - "./data/vscode:/srv/data/vscode"
+      - "./data/workspace:/srv/data/workspace"
     ports:
       - "8443:8443"
     environment:
-      - PROXY_DOMAIN=vscode.lab.jrbeverly.me
       - VIRTUAL_HOST=vscode.lab.jrbeverly.me
       - VIRTUAL_PORT=8443
